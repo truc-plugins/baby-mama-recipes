@@ -289,7 +289,7 @@
     ・AIの提案は目安です。月齢・発達・アレルギーの最終判断はおうちの方がしてね。
   </div>
 
-  <footer>ベビママなかよしレシピ v3.0 🌸</footer>
+  <footer>ベビママなかよしレシピ v3.1 🌸</footer>
 </div>
 
 <!-- 設定モーダル -->
@@ -653,11 +653,12 @@ const PLAN_SCHEMA = {
     tomorrow_note:{ type:'string', description:'今日の料理から明日に引き継ぐもの(例: 晩のスープを2人分残して翌朝リゾットに)。1〜2行。なければ空文字。' },
     meals:{ type:'array', items:{
       type:'object', additionalProperties:false,
-      required:['time','name','emoji','reuse','ingredients','common_steps','adult_steps','baby_steps','point','image_prompt'],
+      required:['time','name','emoji','minutes','reuse','ingredients','common_steps','adult_steps','baby_steps','point','image_prompt'],
       properties:{
         time:{ type:'string', enum:['朝','昼','晩'] },
         name:{ type:'string' },
         emoji:{ type:'string', description:'料理を表す絵文字1文字' },
+        minutes:{ type:'integer', description:'調理の所要時間の目安(分)。正直に。' },
         reuse:{ type:'string', description:'この料理が何を流用しているか(例: 「昼のトマトソースをリメイク」「前日の晩の肉じゃがを使用」)。流用なしなら空文字。' },
         ingredients:{ type:'array', items:{type:'string'}, description:'大人2人+赤ちゃん1人分。大人用のみの調味料には（大人用）と付記' },
         common_steps:{ type:'array', items:{type:'string'}, description:'大人と赤ちゃんで共通の工程。最後は必ず味つけ前に赤ちゃん分を取り分ける流れにする' },
@@ -681,11 +682,19 @@ function buildPrompts(st) {
 
   const system = `あなたは「ベビママなかよしレシピ」の献立AIです。管理栄養士として、大人と赤ちゃんの取り分けレシピ（主菜のみ）を提案します。
 
-最重要コンセプト — 1日をひとつの流れとして設計する:
-- 育児中の家庭が毎食ゼロから作るのは現実的でない。仕込みの流用を必ず設計に組み込む
-- 朝: 10分以内で完成する簡単なもの。前日の晩からの引き継ぎ（リメイク）があれば最優先で活用する
+最重要コンセプト① — とにかく簡単に（家事育児で疲れている人向け。凝った料理は求められていない）:
+- 1品の材料は調味料を除いて4つまで
+- 工程は1品トータルで4〜5手順以内（共通2つ・大人用1〜2つ・赤ちゃん用1〜2つ）。1手順=1動作で短く書く
+- 電子レンジ・トースター・炊飯器の同時調理・ワンパン（鍋やフライパン1つ）を積極的に使い、火の見張りと洗い物を減らす
+- 切らずに使える食材を活用する: 冷凍野菜（ほうれん草・ブロッコリー・かぼちゃ等）、カット野菜、豆腐、しらす、ツナ水煮缶(食塩無添加)、納豆、サバ水煮缶、無塩トマト缶、コーン缶、ミックスビーンズなど
+- 包丁とまな板の出番は1日トータルで1〜2回までに抑える
+- 所要時間の目安: 朝5分以内・昼10分以内・晩15分以内。minutesに正直な所要時間(分)を書く
+
+最重要コンセプト② — 1日をひとつの流れとして設計する:
+- 毎食ゼロから作らない。仕込みの流用を必ず設計に組み込む
+- 朝: 前日の晩からの引き継ぎ（リメイク）があれば最優先で活用する
 - 昼または朝の仕込みで、晩に流用できるベース（ゆで野菜、スープ、ソース、下味肉など）を多めに作る
-- 晩: 少し丁寧に。ただし昼までの仕込みを活かして工程を減らす。さらに翌朝にリメイクできるものを少し残す設計にする
+- 晩: 昼までの仕込みを活かして工程を減らし、翌朝にリメイクできるものを少し残す設計にする
 - 各料理のreuseに何を流用したかを、prep_noteに今日の仕込み計画を、tomorrow_noteに明日への引き継ぎを書く
 
 作り分けルール:
@@ -802,6 +811,7 @@ async function generateWithAI(st) {
   const plan = parsePlan(text);
   const meals = plan.meals.map(m => ({
     name: m.name, emoji: m.emoji || '🍽',
+    minutes: m.minutes || 0,
     reuse: m.reuse || '',
     ingredients: m.ingredients, common: m.common_steps, adult: m.adult_steps, baby: m.baby_steps,
     point: m.point || '',
@@ -855,7 +865,7 @@ function renderPlan(meals, st, extra) {
     card.innerHTML = `
       <div class="meal-head">
         <span class="meal-time ${m.cls}">${m.icon} ${m.time}</span>
-        <div class="meal-title">${escapeHtml(r.emoji)} ${escapeHtml(r.name)}<small>${r.reuse ? '♻️ ' + escapeHtml(r.reuse) : 'タップで作り方をひらく'}</small></div>
+        <div class="meal-title">${escapeHtml(r.emoji)} ${escapeHtml(r.name)}<small>${r.minutes ? '⏱ 約' + r.minutes + '分' : ''}${r.minutes && r.reuse ? '・' : ''}${r.reuse ? '♻️ ' + escapeHtml(r.reuse) : (r.minutes ? '' : 'タップで作り方をひらく')}</small></div>
         <span class="chev">▶</span>
       </div>
       <div class="meal-body">
