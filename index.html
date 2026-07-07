@@ -155,6 +155,25 @@
   .sec-baby .stage-tag { font-size: 11px; background: #fff; border-radius: 999px; padding: 2px 10px; color: var(--pink-dark); }
   .point-line { margin-top: 10px; font-size: 12.5px; background: #f6fff9; border-radius: 12px; padding: 9px 12px; color: var(--mint-dark); line-height: 1.6; }
 
+  .meal-photo { margin-top: 2px; }
+  .meal-photo img {
+    width: 100%; height: 170px; object-fit: cover; border-radius: 14px; display: block;
+    background: #f7e9ee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><text x="6" y="28" font-size="22">🍳</text></svg>') center no-repeat;
+  }
+  .reuse-line {
+    margin-top: 10px; font-size: 12.5px; background: #fff7e6; border-radius: 12px;
+    padding: 9px 12px; color: #a37a00; line-height: 1.6;
+  }
+  .prep-panel, .tomorrow-panel {
+    display: none; margin-top: 14px; background: #fff; border-radius: 20px;
+    box-shadow: var(--shadow); padding: 14px 16px; font-size: 13.5px; line-height: 1.7;
+  }
+  .prep-panel .who, .tomorrow-panel .who { font-weight: bold; margin-bottom: 4px; font-size: 12.5px; }
+  .prep-panel .who { color: #b3763d; }
+  .prep-panel { background: #fffaf2; }
+  .tomorrow-panel .who { color: #8d7ae6; }
+  .tomorrow-panel { background: #f6f4ff; }
+
   /* ミルク期 */
   .milk-only {
     display: none; text-align: center; background: var(--card); border-radius: 20px;
@@ -258,7 +277,9 @@
 
   <div class="err-box" id="errBox"></div>
   <div class="ai-reason" id="aiReason"></div>
+  <div class="prep-panel" id="prepPanel"></div>
   <div class="meal-section" id="mealSection"></div>
+  <div class="tomorrow-panel" id="tomorrowPanel"></div>
 
   <div class="notice">
     <strong>⚠️ たいせつなおやくそく</strong><br>
@@ -268,7 +289,7 @@
     ・AIの提案は目安です。月齢・発達・アレルギーの最終判断はおうちの方がしてね。
   </div>
 
-  <footer>ベビママなかよしレシピ v2.0 🌸</footer>
+  <footer>ベビママなかよしレシピ v3.0 🌸</footer>
 </div>
 
 <!-- 設定モーダル -->
@@ -293,6 +314,11 @@
     <div class="check-row">
       <input type="checkbox" id="searchToggle">
       <span><b>Web検索モード</b> — AIが旬の食材や人気の取り分けレシピをネットで調べてから献立を作ります（少し時間とコストが増えます）</span>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="imgToggle">
+      <span><b>料理写真の生成</b> — 無料の画像生成サービス（Pollinations.ai）で完成イメージを表示します。料理の説明文だけが同サービスに送られます（追加費用なし・あくまでイメージです）</span>
     </div>
 
     <div class="cost-note">
@@ -448,9 +474,13 @@ const store = {
   set model(v){ localStorage.setItem('bmr_model', v); },
   get search(){ return localStorage.getItem('bmr_search') === '1'; },
   set search(v){ localStorage.setItem('bmr_search', v ? '1' : '0'); },
-  get recent(){ try { return JSON.parse(localStorage.getItem('bmr_recent')||'[]'); } catch(e){ return []; } },
-  set recent(v){ localStorage.setItem('bmr_recent', JSON.stringify(v.slice(-12))); },
+  get img(){ return localStorage.getItem('bmr_img') !== '0'; },
+  set img(v){ localStorage.setItem('bmr_img', v ? '1' : '0'); },
+  // 献立の履歴: [{d:'2026-07-07', meals:['○○','△△','□□'], note:'引き継ぎメモ'}] 直近7日分
+  get history(){ try { return JSON.parse(localStorage.getItem('bmr_history')||'[]'); } catch(e){ return []; } },
+  set history(v){ localStorage.setItem('bmr_history', JSON.stringify(v.slice(-7))); },
 };
+function todayStr() { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`; }
 
 let weather = null; // {desc, temp}
 let aborter = null;
@@ -477,6 +507,8 @@ $('ageSlider').addEventListener('input', updateAge);
 function hideResults() {
   $('mealSection').style.display = 'none';
   $('aiReason').style.display = 'none';
+  $('prepPanel').style.display = 'none';
+  $('tomorrowPanel').style.display = 'none';
   $('errBox').style.display = 'none';
 }
 
@@ -535,6 +567,7 @@ $('gearBtn').addEventListener('click', () => {
   $('keyInput').value = store.key;
   $('modelSelect').value = store.model;
   $('searchToggle').checked = store.search;
+  $('imgToggle').checked = store.img;
   $('modalBg').classList.add('show');
 });
 $('modalClose').addEventListener('click', () => $('modalBg').classList.remove('show'));
@@ -546,6 +579,7 @@ $('modalSave').addEventListener('click', () => {
   store.key = $('keyInput').value.trim();
   store.model = $('modelSelect').value;
   store.search = $('searchToggle').checked;
+  store.img = $('imgToggle').checked;
   $('modalBg').classList.remove('show');
   refreshModeHint();
 });
@@ -602,7 +636,8 @@ function generateFromPresets(st) {
   const plan = MEALS.map(m => {
     const r = pickRecipe(m.tag, st.key, used, proteins);
     if (r) { used.push(r.name); proteins.push(r.protein); }
-    return r && { name:r.name, emoji:r.emoji, ingredients:r.ingredients, common:r.common, adult:r.adult, baby:r.baby[st.key], point:'' };
+    return r && { name:r.name, emoji:r.emoji, reuse:'', ingredients:r.ingredients, common:r.common, adult:r.adult, baby:r.baby[st.key], point:'',
+      imgPrompt:'japanese home cooking, ' + r.name + ', food photography, warm natural light' };
   });
   renderPlan(plan, st, null);
 }
@@ -611,21 +646,25 @@ function generateFromPresets(st) {
 const THINK_LINES = ['AIシェフが献立を考え中…','旬の食材とにらめっこ中…','作り分けの段取りを計算中…','味つけをこっそり調整中…'];
 
 const PLAN_SCHEMA = {
-  type:'object', additionalProperties:false, required:['reason','meals'],
+  type:'object', additionalProperties:false, required:['reason','prep_note','meals','tomorrow_note'],
   properties:{
     reason:{ type:'string', description:'今日の天気・季節・体調を踏まえてこの献立にした理由。ママパパへの一言(120字以内)。' },
+    prep_note:{ type:'string', description:'朝(または前夜)にまとめてやっておく仕込みのポイント。何をどれだけ多めに作り、どの食事に回すかが分かるように。3行以内。' },
+    tomorrow_note:{ type:'string', description:'今日の料理から明日に引き継ぐもの(例: 晩のスープを2人分残して翌朝リゾットに)。1〜2行。なければ空文字。' },
     meals:{ type:'array', items:{
       type:'object', additionalProperties:false,
-      required:['time','name','emoji','ingredients','common_steps','adult_steps','baby_steps','point'],
+      required:['time','name','emoji','reuse','ingredients','common_steps','adult_steps','baby_steps','point','image_prompt'],
       properties:{
         time:{ type:'string', enum:['朝','昼','晩'] },
         name:{ type:'string' },
         emoji:{ type:'string', description:'料理を表す絵文字1文字' },
+        reuse:{ type:'string', description:'この料理が何を流用しているか(例: 「昼のトマトソースをリメイク」「前日の晩の肉じゃがを使用」)。流用なしなら空文字。' },
         ingredients:{ type:'array', items:{type:'string'}, description:'大人2人+赤ちゃん1人分。大人用のみの調味料には（大人用）と付記' },
         common_steps:{ type:'array', items:{type:'string'}, description:'大人と赤ちゃんで共通の工程。最後は必ず味つけ前に赤ちゃん分を取り分ける流れにする' },
         adult_steps:{ type:'array', items:{type:'string'} },
         baby_steps:{ type:'array', items:{type:'string'}, description:'指定の離乳食ステージに合わせた作り分け工程' },
-        point:{ type:'string', description:'栄養や時短のワンポイント(60字以内)。不要なら空文字' }
+        point:{ type:'string', description:'栄養や時短のワンポイント(60字以内)。不要なら空文字' },
+        image_prompt:{ type:'string', description:'完成した料理の写真を画像生成AIで作るための英語の説明文。例: "japanese home-style simmered pumpkin and minced chicken in a ceramic bowl, cozy food photography, warm natural light"' }
       }
     }}
   }
@@ -635,21 +674,30 @@ function buildPrompts(st) {
   const now = new Date();
   const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
   const wStr = weather ? `${weather.desc.replace(/^[^ ]+ /,'')}、気温${weather.temp}℃` : '不明';
-  const recent = store.recent;
   const req = $('reqInput').value.trim();
+  const hist = store.history;
+  const prev = [...hist].reverse().find(h => h.d !== todayStr()); // 直近の過去日
+  const recentNames = hist.slice(-4).flatMap(h => h.meals);
 
   const system = `あなたは「ベビママなかよしレシピ」の献立AIです。管理栄養士として、大人と赤ちゃんの取り分けレシピ（主菜のみ）を提案します。
 
-ルール:
+最重要コンセプト — 1日をひとつの流れとして設計する:
+- 育児中の家庭が毎食ゼロから作るのは現実的でない。仕込みの流用を必ず設計に組み込む
+- 朝: 10分以内で完成する簡単なもの。前日の晩からの引き継ぎ（リメイク）があれば最優先で活用する
+- 昼または朝の仕込みで、晩に流用できるベース（ゆで野菜、スープ、ソース、下味肉など）を多めに作る
+- 晩: 少し丁寧に。ただし昼までの仕込みを活かして工程を減らす。さらに翌朝にリメイクできるものを少し残す設計にする
+- 各料理のreuseに何を流用したかを、prep_noteに今日の仕込み計画を、tomorrow_noteに明日への引き継ぎを書く
+
+作り分けルール:
 - 朝・昼・晩の主菜を1品ずつ、必ずこの順で3品提案する
 - 各レシピは「共通の工程」で途中まで一緒に作り、味つけ前に赤ちゃん分を取り分けて「大人用」「赤ちゃん用」に作り分ける構成にする
 - 赤ちゃん用は指定の離乳食ステージに厳密に合わせる（かたさ・大きさ・味つけ・使える食材）
-- 安全最優先: 1歳未満にはちみつ・黒糖は絶対に使わない。赤ちゃん用は中まで完全に加熱。塩分・糖分・脂は最小限。誤嚥しやすい食材（ナッツ、餅、こんにゃくゼリー、ミニトマト丸ごと等）は赤ちゃん用に使わない。生もの・刺身は大人用のみ。
+- 安全最優先: 1歳未満にはちみつ・黒糖は絶対に使わない。赤ちゃん用は中まで完全に加熱。塩分・糖分・脂は最小限。誤嚥しやすい食材（ナッツ、餅、こんにゃくゼリー、ミニトマト丸ごと等）は赤ちゃん用に使わない。生もの・刺身は大人用のみ。作り置き・リメイクした料理は赤ちゃんに出す前に必ず再加熱するよう手順に書く
 - アレルギー特定原材料（卵・乳・小麦・そば・落花生・えび・かに・くるみ）を赤ちゃん用に使う場合は、pointに「○○が未経験なら少量から」と注意を書く
 - タンパク源（肉・魚・卵・大豆製品）が3食で偏らないようにする
-- 季節・天気・気温・体調に合わせる（暑い日はさっぱり、寒い日は温かく、風邪気味なら消化に良く水分多めに、食欲がない日は好まれやすい味に等）
-- 朝は手早く作れるもの、晩は少し丁寧なものにする
-- 手順は各セクション2〜4項目で簡潔に`;
+- 季節・天気・気温・体調に合わせる（暑い日はさっぱり、寒い日は温かく、風邪気味なら消化に良く水分多めに等）
+- 手順は各セクション2〜4項目で簡潔に
+- image_promptは料理ごとに英語で、おいしそうな完成写真の説明を書く`;
 
   let user = `今日の献立を考えてください。
 
@@ -658,7 +706,9 @@ function buildPrompts(st) {
 【赤ちゃん】${$('ageSlider').value}ヶ月 / ${st.label}（${st.months}）: ${st.note}
 【今日の体調】${condition}
 【リクエスト】${req || 'とくになし'}
-【最近作ったもの（かぶらないように）】${recent.length ? recent.join('、') : 'なし'}`;
+【前日の献立】${prev ? `${prev.d}: ${prev.meals.join('、')}` : 'なし（記録がないので引き継ぎなしで設計してOK）'}
+【前日からの引き継ぎメモ】${prev && prev.note ? prev.note + ' → 今日の朝食はこれを活用して' : 'なし'}
+【最近作ったもの（かぶらないように）】${recentNames.length ? recentNames.join('、') : 'なし'}`;
 
   if (store.search) {
     user += `
@@ -752,11 +802,16 @@ async function generateWithAI(st) {
   const plan = parsePlan(text);
   const meals = plan.meals.map(m => ({
     name: m.name, emoji: m.emoji || '🍽',
+    reuse: m.reuse || '',
     ingredients: m.ingredients, common: m.common_steps, adult: m.adult_steps, baby: m.baby_steps,
     point: m.point || '',
+    imgPrompt: m.image_prompt || ('japanese home cooking, ' + m.name + ', food photography'),
   }));
-  store.recent = store.recent.concat(plan.meals.map(m => m.name));
-  renderPlan(meals, st, plan.reason);
+  // 今日の献立を履歴に保存（同日の再生成は上書き）
+  const hist = store.history.filter(h => h.d !== todayStr());
+  hist.push({ d: todayStr(), meals: plan.meals.map(m => m.name), note: plan.tomorrow_note || '' });
+  store.history = hist;
+  renderPlan(meals, st, { reason: plan.reason, prep: plan.prep_note || '', tomorrow: plan.tomorrow_note || '' });
 }
 
 function parsePlan(text) {
@@ -774,10 +829,21 @@ function validatePlan(p) {
 }
 
 // ================= 描画 =================
-function renderPlan(meals, st, reason) {
-  if (reason) {
-    $('aiReason').innerHTML = `<div class="who">🤖 AIシェフより</div>${escapeHtml(reason)}`;
+function imgUrl(prompt) {
+  return 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt) + '?width=768&height=440&nologo=true';
+}
+function renderPlan(meals, st, extra) {
+  if (extra && extra.reason) {
+    $('aiReason').innerHTML = `<div class="who">🤖 AIシェフより</div>${escapeHtml(extra.reason)}`;
     $('aiReason').style.display = 'block';
+  }
+  if (extra && extra.prep) {
+    $('prepPanel').innerHTML = `<div class="who">🔪 今日の仕込み（まとめてやっておくと楽！）</div>${escapeHtml(extra.prep)}`;
+    $('prepPanel').style.display = 'block';
+  }
+  if (extra && extra.tomorrow) {
+    $('tomorrowPanel').innerHTML = `<div class="who">🌙 明日へのバトン</div>${escapeHtml(extra.tomorrow)}<br><small style="color:#a99ecb">※このメモは保存され、明日の献立生成でAIが引き継ぎます</small>`;
+    $('tomorrowPanel').style.display = 'block';
   }
   const sec = $('mealSection');
   sec.innerHTML = '';
@@ -789,10 +855,12 @@ function renderPlan(meals, st, reason) {
     card.innerHTML = `
       <div class="meal-head">
         <span class="meal-time ${m.cls}">${m.icon} ${m.time}</span>
-        <div class="meal-title">${escapeHtml(r.emoji)} ${escapeHtml(r.name)}<small>タップで作り方をひらく</small></div>
+        <div class="meal-title">${escapeHtml(r.emoji)} ${escapeHtml(r.name)}<small>${r.reuse ? '♻️ ' + escapeHtml(r.reuse) : 'タップで作り方をひらく'}</small></div>
         <span class="chev">▶</span>
       </div>
       <div class="meal-body">
+        ${store.img && r.imgPrompt ? `<div class="meal-photo"><img alt="${escapeHtml(r.name)}のイメージ" src="${imgUrl(r.imgPrompt)}" onerror="this.parentNode.style.display='none'"></div>` : ''}
+        ${r.reuse ? `<div class="reuse-line">♻️ <b>流用ポイント:</b> ${escapeHtml(r.reuse)}</div>` : ''}
         <div class="sec sec-ing">
           <h3>🧺 材料（大人2人＋赤ちゃん1人分）</h3>
           <ul>${r.ingredients.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>
