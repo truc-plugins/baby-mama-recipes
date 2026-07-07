@@ -29,13 +29,15 @@
   }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 
-  header { text-align: center; padding: 28px 16px 12px; }
-  .logo {
-    font-size: 26px; font-weight: bold; color: var(--pink-dark);
-    letter-spacing: 1px;
-  }
-  .logo .emoji { font-size: 30px; }
+  header { text-align: center; padding: 28px 16px 12px; position: relative; }
+  .logo { font-size: 24px; font-weight: bold; color: var(--pink-dark); letter-spacing: 1px; }
+  .logo .emoji { font-size: 28px; }
   .tagline { font-size: 13px; margin-top: 6px; color: #a58585; }
+  .gear {
+    position: absolute; right: 4px; top: 24px; background: #fff; border: none;
+    border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer;
+    box-shadow: var(--shadow);
+  }
 
   .panel {
     background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
@@ -45,6 +47,7 @@
     font-size: 15px; color: var(--pink-dark); margin-bottom: 12px;
     display: flex; align-items: center; gap: 6px;
   }
+  .sub-label { font-size: 13px; color: var(--pink-dark); font-weight: bold; margin: 16px 0 8px; }
 
   /* 月齢セレクタ */
   .age-row { display: flex; align-items: center; gap: 12px; }
@@ -61,33 +64,63 @@
   }
   .stage-note { font-size: 12px; font-weight: normal; margin-top: 4px; }
 
+  /* 体調チップ */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid #f3cdd9; background: #fff; color: var(--brown);
+    border-radius: 999px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+  }
+  .chip.on { background: var(--pink); border-color: var(--pink); color: #fff; font-weight: bold; }
+
+  .req-input {
+    width: 100%; border: 1.5px solid #f3cdd9; border-radius: 12px; padding: 10px 12px;
+    font-size: 14px; font-family: inherit; color: var(--brown); background: #fff;
+  }
+  .req-input::placeholder { color: #cfaeae; }
+
+  .weather-chip {
+    margin-top: 14px; background: #eef7ff; color: #3d6a8b; border-radius: 12px;
+    padding: 9px 12px; font-size: 13px; text-align: center;
+  }
+
   .gen-btn {
     display: block; width: 100%; margin-top: 16px; padding: 16px;
     background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
     color: #fff; font-size: 17px; font-weight: bold; border: none;
     border-radius: 999px; cursor: pointer; box-shadow: 0 6px 14px rgba(224,102,140,.35);
-    transition: transform .1s;
-    font-family: inherit;
+    transition: transform .1s; font-family: inherit;
   }
   .gen-btn:active { transform: scale(.97); }
   .gen-btn:disabled { opacity: .6; }
+  .mode-hint { font-size: 11.5px; color: #b58f8f; text-align: center; margin-top: 8px; line-height: 1.6; }
+  .mode-hint b { color: var(--pink-dark); }
 
   /* 考え中 */
   .thinking { text-align: center; padding: 28px 0 8px; display: none; }
   .thinking .face { font-size: 40px; animation: bob 1s infinite ease-in-out; display: inline-block; }
   @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
   .thinking p { margin-top: 8px; font-size: 14px; color: var(--pink-dark); }
+  .thinking .sub { font-size: 11px; color: #c9a5a5; margin-top: 4px; }
+  .cancel-btn {
+    margin-top: 10px; background: #fff; border: 1.5px solid #f3cdd9; color: #b58f8f;
+    border-radius: 999px; padding: 6px 18px; font-size: 12px; cursor: pointer; font-family: inherit;
+  }
+
+  /* AIコメント */
+  .ai-reason {
+    display: none; margin-top: 20px; background: #fff; border-radius: 20px;
+    box-shadow: var(--shadow); padding: 14px 16px; font-size: 13.5px; line-height: 1.7;
+  }
+  .ai-reason .who { font-weight: bold; color: var(--pink-dark); margin-bottom: 4px; font-size: 12.5px; }
 
   /* 献立カード */
-  .meal-section { margin-top: 20px; display: none; }
+  .meal-section { margin-top: 8px; display: none; }
   .meal-card {
     background: var(--card); border-radius: 20px; box-shadow: var(--shadow);
     margin-top: 14px; overflow: hidden;
   }
-  .meal-head {
-    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
-    cursor: pointer;
-  }
+  .meal-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
   .meal-time {
     font-size: 12px; font-weight: bold; color: #fff; border-radius: 999px;
     padding: 5px 12px; white-space: nowrap;
@@ -97,20 +130,13 @@
   .meal-time.night { background: #8d7ae6; }
   .meal-title { flex: 1; font-size: 16px; font-weight: bold; }
   .meal-title small { display: block; font-size: 11px; color: #a58585; font-weight: normal; margin-top: 2px; }
-  .reroll {
-    background: var(--pink-light); border: none; border-radius: 999px;
-    width: 34px; height: 34px; font-size: 16px; cursor: pointer; flex-shrink: 0;
-  }
   .chev { font-size: 12px; color: #c9a5a5; transition: transform .2s; }
   .meal-card.open .chev { transform: rotate(90deg); }
-
   .meal-body { display: none; padding: 0 16px 18px; }
   .meal-card.open .meal-body { display: block; }
 
-  .sec {
-    border-radius: 14px; padding: 12px 14px; margin-top: 10px; font-size: 14px;
-  }
-  .sec h3 { font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .sec { border-radius: 14px; padding: 12px 14px; margin-top: 10px; font-size: 14px; }
+  .sec h3 { font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .sec ol, .sec ul { padding-left: 20px; }
   .sec li { margin: 5px 0; line-height: 1.5; }
   .sec-ing { background: var(--cream); border: 1.5px dashed #eccfb5; }
@@ -121,31 +147,66 @@
     text-align: center; font-size: 12px; font-weight: bold; color: var(--pink-dark);
     margin: 12px 0 2px; display: flex; align-items: center; gap: 8px;
   }
-  .split-banner::before, .split-banner::after {
-    content: ""; flex: 1; border-top: 2px dotted var(--pink);
-  }
+  .split-banner::before, .split-banner::after { content: ""; flex: 1; border-top: 2px dotted var(--pink); }
   .sec-adult { background: #eef4ff; }
   .sec-adult h3 { color: #4a6fb5; }
   .sec-baby { background: var(--pink-light); }
   .sec-baby h3 { color: var(--pink-dark); }
-  .sec-baby .stage-tag {
-    font-size: 11px; background: #fff; border-radius: 999px; padding: 2px 10px;
-    color: var(--pink-dark);
-  }
+  .sec-baby .stage-tag { font-size: 11px; background: #fff; border-radius: 999px; padding: 2px 10px; color: var(--pink-dark); }
+  .point-line { margin-top: 10px; font-size: 12.5px; background: #f6fff9; border-radius: 12px; padding: 9px 12px; color: var(--mint-dark); line-height: 1.6; }
 
-  /* ミルク期メッセージ */
+  /* ミルク期 */
   .milk-only {
     display: none; text-align: center; background: var(--card); border-radius: 20px;
-    box-shadow: var(--shadow); padding: 32px 20px; margin-top: 20px; font-size: 14px;
-    line-height: 1.8;
+    box-shadow: var(--shadow); padding: 32px 20px; margin-top: 20px; font-size: 14px; line-height: 1.8;
   }
   .milk-only .big { font-size: 44px; }
+
+  .err-box {
+    display: none; margin-top: 16px; background: #fff2f2; border: 1.5px solid #f0bcbc;
+    border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #a54848; line-height: 1.7;
+  }
 
   .notice {
     margin-top: 24px; font-size: 11.5px; color: #a58585; line-height: 1.7;
     background: #fff; border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow);
   }
   .notice strong { color: var(--pink-dark); }
+
+  /* 設定モーダル */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; background: rgba(107,79,79,.45);
+    z-index: 50; padding: 20px; overflow-y: auto;
+  }
+  .modal-bg.show { display: block; }
+  .modal {
+    max-width: 560px; margin: 40px auto; background: #fff; border-radius: 20px;
+    padding: 22px; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+  }
+  .modal h2 { font-size: 16px; color: var(--pink-dark); margin-bottom: 6px; }
+  .modal .desc { font-size: 12px; color: #a58585; line-height: 1.7; margin-bottom: 14px; }
+  .modal label { display: block; font-size: 13px; font-weight: bold; color: var(--brown); margin: 14px 0 6px; }
+  .modal input[type="password"], .modal input[type="text"], .modal select {
+    width: 100%; border: 1.5px solid #f3cdd9; border-radius: 12px; padding: 10px 12px;
+    font-size: 14px; font-family: inherit; color: var(--brown);
+  }
+  .key-row { display: flex; gap: 8px; }
+  .key-row button {
+    border: 1.5px solid #f3cdd9; background: #fff; border-radius: 12px; padding: 0 12px;
+    cursor: pointer; font-size: 14px;
+  }
+  .check-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; font-size: 13px; line-height: 1.6; }
+  .check-row input { margin-top: 3px; accent-color: var(--pink); }
+  .modal .cost-note { font-size: 11.5px; color: #a58585; background: var(--cream); border-radius: 12px; padding: 10px 12px; margin-top: 14px; line-height: 1.7; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-btns .save {
+    flex: 1; background: var(--pink-dark); color: #fff; border: none; border-radius: 999px;
+    padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; font-family: inherit;
+  }
+  .modal-btns .close {
+    background: #fff; border: 1.5px solid #f3cdd9; color: #b58f8f; border-radius: 999px;
+    padding: 12px 20px; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
 
   footer { text-align: center; font-size: 11px; color: #c9a5a5; margin-top: 28px; }
 </style>
@@ -154,7 +215,8 @@
 <div class="wrap">
   <header>
     <div class="logo"><span class="emoji">🍼</span> ベビママなかよしレシピ <span class="emoji">🍳</span></div>
-    <p class="tagline">とちゅうまでいっしょに作って、さいごに作り分け♪</p>
+    <p class="tagline">AIが今日の空模様と体調に合わせて考えます♪</p>
+    <button class="gear" id="gearBtn" title="設定">⚙️</button>
   </header>
 
   <div class="panel">
@@ -164,12 +226,26 @@
       <div class="age-value" id="ageValue">7ヶ月</div>
     </div>
     <div class="stage-badge" id="stageBadge"></div>
+
+    <div id="condBlock">
+      <div class="sub-label">🌡 今日のお子さまの体調は？</div>
+      <div class="chips" id="condChips"></div>
+
+      <div class="sub-label">📝 リクエスト（使いたい食材・避けたい食材など / 空欄OK）</div>
+      <input class="req-input" id="reqInput" type="text" placeholder="例: 冷蔵庫に鮭とかぼちゃがある。卵は除去中。">
+    </div>
+
+    <div class="weather-chip" id="weatherChip">🌏 天気を確認中…</div>
+
     <button class="gen-btn" id="genBtn">🤖 今日の献立を考えてもらう</button>
+    <p class="mode-hint" id="modeHint"></p>
   </div>
 
   <div class="thinking" id="thinking">
     <span class="face">🤖💭</span>
     <p id="thinkingText">AIシェフが献立を考え中…</p>
+    <p class="sub" id="thinkingSub"></p>
+    <button class="cancel-btn" id="cancelBtn">やめる</button>
   </div>
 
   <div class="milk-only" id="milkOnly">
@@ -180,6 +256,8 @@
     ママ・パパはしっかりごはんを食べて体力チャージしてね ♡</p>
   </div>
 
+  <div class="err-box" id="errBox"></div>
+  <div class="ai-reason" id="aiReason"></div>
   <div class="meal-section" id="mealSection"></div>
 
   <div class="notice">
@@ -187,14 +265,49 @@
     ・はじめての食材は<strong>平日の午前中に1さじから</strong>。1日1種類ずつ試してね。<br>
     ・<strong>1歳未満のはちみつは絶対NG</strong>（乳児ボツリヌス症の危険）。<br>
     ・卵・乳・小麦などのアレルギーが心配なときは、かかりつけ医に相談を。<br>
-    ・月齢はあくまで目安。お子さまの発達に合わせて進めてね。
+    ・AIの提案は目安です。月齢・発達・アレルギーの最終判断はおうちの方がしてね。
   </div>
 
-  <footer>ベビママなかよしレシピ v1.0 🌸</footer>
+  <footer>ベビママなかよしレシピ v2.0 🌸</footer>
+</div>
+
+<!-- 設定モーダル -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>⚙️ AI設定</h2>
+    <p class="desc">Anthropic APIキーを設定すると、AIが月齢・体調・季節・天気に合わせて毎回新しいレシピを考えます。キーは<strong>この端末の中だけ</strong>に保存され、外部に送信されるのはAnthropic社のAPIだけです。</p>
+
+    <label>APIキー（console.anthropic.com で発行 / sk-ant-… で始まる文字列）</label>
+    <div class="key-row">
+      <input type="password" id="keyInput" placeholder="sk-ant-api03-...">
+      <button id="keyToggle" type="button">👁</button>
+    </div>
+
+    <label>AIモデル</label>
+    <select id="modelSelect">
+      <option value="claude-opus-4-8">Claude Opus 4.8（おすすめ・かしこい）</option>
+      <option value="claude-sonnet-5">Claude Sonnet 5（バランス）</option>
+      <option value="claude-haiku-4-5">Claude Haiku 4.5（最速・最安）</option>
+    </select>
+
+    <div class="check-row">
+      <input type="checkbox" id="searchToggle">
+      <span><b>Web検索モード</b> — AIが旬の食材や人気の取り分けレシピをネットで調べてから献立を作ります（少し時間とコストが増えます）</span>
+    </div>
+
+    <div class="cost-note">
+      💰 <b>コストの目安</b>：1回の献立生成で数円〜数十円程度（モデルとWeb検索の有無で変動）。毎日使っても月数百円〜が目安です。APIキーの発行には Anthropic のアカウントと支払い設定が必要です。
+    </div>
+
+    <div class="modal-btns">
+      <button class="close" id="modalClose">閉じる</button>
+      <button class="save" id="modalSave">保存する</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// ---------- 離乳食ステージ ----------
+// ================= 離乳食ステージ =================
 const STAGES = {
   early:   { key:'early',   label:'ごっくん期（離乳初期）',  months:'5〜6ヶ月',   note:'なめらかにすりつぶしたポタージュ状。味つけなし。' },
   mid:     { key:'mid',     label:'もぐもぐ期（離乳中期）',  months:'7〜8ヶ月',   note:'舌でつぶせる豆腐くらいのかたさ。2〜3mmのみじん切り。' },
@@ -211,398 +324,498 @@ function monthToStage(m) {
   return STAGES.toddler;
 }
 
-// ---------- レシピデータ ----------
-// baby: ステージごとの作り分け手順（対応しないステージは出さない）
+// ================= 体調チップ =================
+const CONDITIONS = ['😊 元気いっぱい','🤧 風邪ぎみ','😪 食欲少なめ','💩 お腹ゆるめ','🦷 歯ぐずり中'];
+let condition = CONDITIONS[0];
+
+// ================= 内蔵レシピ（オフライン用） =================
 const RECIPES = [
-  {
-    id:'tofu-toro', name:'豆腐と野菜のとろとろ煮', emoji:'🥄',
-    meals:['朝','昼'], protein:'豆腐', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['絹ごし豆腐 150g','にんじん 1/3本','ほうれん草(葉先) 2株','だし汁 200ml'],
-      adult:['しょうゆ 小さじ2','かつお節 適量','ごま油 少々'],
-      baby:['水溶き片栗粉 少々'] },
-    common:[
-      'にんじんは皮をむいてやわらかくゆでる。ほうれん草はゆでて水にさらす。',
-      '豆腐はさっとゆでて水きりする。',
-      'だし汁を鍋にわかしておく。'],
-    adult:[
-      'だし汁に豆腐と野菜を入れ、しょうゆで味をととのえて2分煮る。',
-      '器に盛り、かつお節とごま油をかけて完成。'],
-    baby:{
-      early:['にんじん・ほうれん草・豆腐をそれぞれなめらかにすりつぶす。','だし汁(味つけ前)でポタージュ状にのばして完成。'],
-      mid:['野菜と豆腐を2〜3mmのみじん切りにする。','味つけ前のだし汁で煮て、水溶き片栗粉でとろみをつけて完成。'],
-      late:['野菜と豆腐を5〜8mm角に切る。','味つけ前のだし汁で煮て、軽くとろみをつけて完成。'],
-      done:['野菜と豆腐を1cm角に切る。','だし汁にしょうゆをほんの1〜2滴落としたうす味で煮て完成。'],
-      toddler:['大人用から取り分けて、だし汁を足して味を半分くらいにうすめる。','食べやすい大きさに切って完成。'] }
-  },
-  {
-    id:'shirasu-tofu', name:'しらすと豆腐のふわふわ和え', emoji:'🐟',
-    meals:['朝'], protein:'魚', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['しらす干し 大さじ3','絹ごし豆腐 150g','小ねぎ(大人用) 適量'],
-      adult:['しょうゆ 少々','かつお節 適量'],
-      baby:[] },
-    common:[
-      'しらすは茶こしに入れて熱湯を回しかけ、塩抜きをする。',
-      '豆腐はさっとゆでて温める。'],
-    adult:[
-      '豆腐にしらすをのせ、小ねぎ・かつお節・しょうゆをかけて完成。'],
-    baby:{
-      early:['塩抜きしたしらすを細かくすりつぶす。','すりつぶした豆腐と混ぜ、湯冷ましでなめらかにのばして完成。'],
-      mid:['しらすを粗く刻み、豆腐は2〜3mmにくずす。','混ぜ合わせて完成。とろみが欲しければだし汁を少し。'],
-      late:['豆腐を5〜8mm角に切り、しらすと和えて完成。'],
-      done:['豆腐を1cm角に切り、しらすと和える。青のりを少しふっても◎'],
-      toddler:['大人用と同じ盛りつけで、しょうゆは無しか1滴だけ。小ねぎは細かく刻んで完成。'] }
-  },
-  {
-    id:'kabocha-soboro', name:'かぼちゃの鶏そぼろ煮', emoji:'🎃',
-    meals:['昼','晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['かぼちゃ 1/4個','鶏ひき肉(むね) 150g','だし汁 300ml'],
-      adult:['しょうゆ 大さじ1','みりん 大さじ1','しょうが 少々'],
-      baby:['水溶き片栗粉 少々'] },
-    common:[
-      'かぼちゃは種とわたを取り、皮をむいて一口大に切る。',
-      'だし汁でかぼちゃをやわらかく煮る。',
-      '鶏ひき肉を加えてほぐしながら火を通し、アクを取る。'],
-    adult:[
-      'しょうゆ・みりん・しょうがを加えて5分煮含める。',
-      '軽く煮汁にとろみが出たら完成。'],
-    baby:{
-      early:['味つけ前のかぼちゃだけを取り出し、なめらかにすりつぶす。','煮汁(味つけ前)でポタージュ状にのばして完成。※ひき肉はまだ使いません。'],
-      mid:['味つけ前のかぼちゃとひき肉を取り分け、かぼちゃはつぶし、ひき肉は細かくほぐす。','煮汁で煮て、水溶き片栗粉でとろみをつけて完成。'],
-      late:['味つけ前に取り分け、かぼちゃは5〜8mm角にくずす。','ひき肉と一緒に煮汁で煮て、とろみをつけて完成。'],
-      done:['味つけ前に取り分け、かぼちゃは1cm角に。','しょうゆ1〜2滴のうす味で軽く煮て完成。'],
-      toddler:['大人用を煮含める前に取り分けるか、大人用にお湯を足して味を半分にうすめる。','食べやすくつぶして完成。'] }
-  },
-  {
-    id:'shiromi-ankake', name:'白身魚と野菜のあんかけ', emoji:'🐠',
-    meals:['晩'], protein:'魚', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['たら(または鯛) 3切れ','にんじん 1/3本','小松菜 2株','だし汁 300ml'],
-      adult:['しょうゆ 小さじ2','みりん 小さじ2','水溶き片栗粉 適量'],
-      baby:['水溶き片栗粉 少々'] },
-    common:[
-      'たらは骨と皮を取りのぞく。にんじんは薄切り、小松菜は刻む。',
-      'だし汁で野菜をやわらかく煮て、たらを加えて火を通す。',
-      'たらをほぐしながら骨が残っていないか確認する。'],
-    adult:[
-      'しょうゆ・みりんで味をととのえる。',
-      '水溶き片栗粉でとろみをつけて完成。ご飯や豆腐にかけても◎'],
-    baby:{
-      early:['味つけ前にたらと野菜を取り分け、なめらかにすりつぶす。','煮汁でポタージュ状にのばして完成。'],
-      mid:['味つけ前に取り分け、たらは細かくほぐし野菜はみじん切りに。','煮汁で煮て、とろみをつけて完成。'],
-      late:['味つけ前に取り分け、たらは粗くほぐし野菜は5〜8mm角に。','煮汁でとろみをつけて完成。'],
-      done:['味つけ前に取り分け、1cm角に切る。','しょうゆをごく少量たらしたうす味あんで完成。'],
-      toddler:['大人用のあんを作る前に取り分け、うす味のあんをかけて完成。大人用より味は半分に。'] }
-  },
-  {
-    id:'niku-jaga', name:'やさしい肉じゃが', emoji:'🥔',
-    meals:['晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['じゃがいも 3個','にんじん 1/2本','玉ねぎ 1/2個','豚こま切れ肉 150g','だし汁 400ml'],
-      adult:['しょうゆ 大さじ2','みりん 大さじ2','砂糖 小さじ1'],
-      baby:[] },
-    common:[
-      'じゃがいも・にんじんは一口大、玉ねぎはくし切りにする。',
-      'だし汁で野菜をやわらかく煮る。',
-      '豚肉を加えて火を通し、アクをていねいに取る。'],
-    adult:[
-      'しょうゆ・みりん・砂糖を加えて10分ほど煮含めて完成。'],
-    baby:{
-      early:['味つけ前にじゃがいも・にんじんを取り分け、なめらかにすりつぶす。','煮汁でポタージュ状にのばして完成。※お肉はまだ使いません。'],
-      mid:['味つけ前に野菜を取り分けてつぶし、豚肉はごく細かく刻む(脂身は除く)。','煮汁でやわらかく煮て完成。'],
-      late:['味つけ前に取り分け、野菜は5〜8mm角、豚肉は細かく刻む。','煮汁で煮て完成。手づかみ用にじゃがいもを小さく丸めても◎'],
-      done:['味つけ前に取り分け、1cm角に切る。','しょうゆ数滴のうす味で軽く煮含めて完成。'],
-      toddler:['大人用を味つけの途中(調味料半分の時点)で取り分ける。','食べやすい大きさに切って完成。'] }
-  },
-  {
-    id:'tofu-hamburg', name:'ふんわり豆腐ハンバーグ', emoji:'🍔',
-    meals:['昼','晩'], protein:'肉', stages:['mid','late','done','toddler'],
-    ingredients:{
-      common:['鶏ひき肉 200g','木綿豆腐 150g','玉ねぎ 1/2個','片栗粉 大さじ2'],
-      adult:['塩こしょう 少々','ケチャップ+中濃ソース 各大さじ1'],
-      baby:['青のり 少々'] },
-    common:[
-      '豆腐は水きりし、玉ねぎはみじん切りにしてレンジで2分加熱する。',
-      'ボウルでひき肉・豆腐・玉ねぎ・片栗粉をよく混ぜる。',
-      'ここで赤ちゃんの分を先に取り分ける！(味つけ前)'],
-    adult:[
-      '残りのたねに塩こしょうをして小判形にまとめ、両面をこんがり焼く。',
-      'ケチャップソースをかけて完成。'],
-    baby:{
-      mid:['取り分けたたねを小さじ1ずつの小さな平たい団子にする。','フライパンで油をひかずに両面弱火で焼き、細かくほぐしてだし汁でしっとりさせて完成。'],
-      late:['取り分けたたねを直径3cmくらいの小さな小判形にする。','弱火で中までしっかり焼いて完成。手づかみ食べにぴったり♪'],
-      done:['取り分けたたねに青のりを混ぜ、小さな小判形にして焼く。','ケチャップをほんの少しだけ添えて完成。'],
-      toddler:['取り分けたたねを子ども用サイズにして焼く。','大人用ソースを1/3量だけ塗って完成。'] }
-  },
-  {
-    id:'salmon-foil', name:'鮭と野菜のホイル蒸し', emoji:'🧡',
-    meals:['晩'], protein:'魚', stages:['mid','late','done','toddler'],
-    ingredients:{
-      common:['生鮭(無塩) 3切れ','キャベツ 2枚','にんじん 1/4本','しめじ(大人用) 1/2株'],
-      adult:['みそ 大さじ1','みりん 大さじ1','バター 10g'],
-      baby:['だし汁 少々'] },
-    common:[
-      'キャベツはざく切り、にんじんは薄切りにする。鮭は骨を取りのぞく。',
-      'ホイルを大人用と赤ちゃん用に分けて広げ、野菜と鮭をのせる。',
-      '赤ちゃん用はだし汁を少しふり、大人用はみそ+みりんを塗ってしめじとバターをのせる。',
-      'ホイルを閉じてフライパンで10分蒸し焼きにする。'],
-    adult:[
-      'ホイルを開けて完成。みそバターの香りがたまらない♪'],
-    baby:{
-      mid:['赤ちゃん用ホイルの鮭と野菜を細かくほぐす・みじん切りにする。','蒸し汁と混ぜてしっとりさせて完成。'],
-      late:['鮭を粗くほぐし、野菜を5〜8mm角に刻んで完成。'],
-      done:['鮭と野菜を1cm角にして、しょうゆ1滴のうす味で完成。'],
-      toddler:['赤ちゃん用ホイルのまま、食べやすく切って完成。大人用のみそ味はまだ濃いので×。'] }
-  },
-  {
-    id:'oyako-ni', name:'とろとろ親子煮', emoji:'🥚',
-    meals:['昼'], protein:'卵', stages:['late','done','toddler'],
-    ingredients:{
-      common:['鶏むね肉 200g','玉ねぎ 1/2個','卵 3個','だし汁 300ml'],
-      adult:['しょうゆ 大さじ1.5','みりん 大さじ1.5','三つ葉 適量'],
-      baby:[] },
-    common:[
-      '鶏肉はそぎ切り、玉ねぎは薄切りにする。',
-      'だし汁で玉ねぎと鶏肉をやわらかく煮て、アクを取る。',
-      'ここで赤ちゃんの分の具と煮汁を取り分ける！(味つけ前)'],
-    adult:[
-      'しょうゆ・みりんを加えて煮て、とき卵を回し入れる。',
-      '卵に火が通ったら三つ葉をのせて完成。ご飯にのせて親子丼にも♪'],
-    baby:{
-      late:['取り分けた具を5mm角に刻み、小鍋で煮汁と温める。','とき卵(全卵)を少量加え、しっかり完全に火を通して完成。※卵黄・卵白を少量ずつ試し済みの子向け。初めての全卵はごく少量から。'],
-      done:['取り分けた具を1cm角に刻み、とき卵を加えてしっかり火を通す。','しょうゆ数滴のうす味にして、軟飯にのせてミニ親子丼に♪'],
-      toddler:['大人用の卵とじを取り分けて、だし汁で味を半分にうすめる。','卵にしっかり火が通っているのを確認して完成。'] }
-  },
-  {
-    id:'sasami-cream', name:'ささみと野菜のクリーム煮', emoji:'🥛',
-    meals:['昼','晩'], protein:'肉', stages:['mid','late','done','toddler'],
-    ingredients:{
-      common:['鶏ささみ 3本','じゃがいも 2個','にんじん 1/3本','ブロッコリー 1/4株','牛乳(または育児用ミルク) 200ml'],
-      adult:['コンソメ 1個','塩こしょう 少々','バター 10g'],
-      baby:['水溶き片栗粉 少々'] },
-    common:[
-      '野菜は小さめに切り、やわらかくゆでる。',
-      'ささみは筋を取ってゆで、細かくさく。',
-      '鍋に野菜・ささみ・牛乳を入れて温める(沸騰させない)。'],
-    adult:[
-      'コンソメ・塩こしょう・バターで味をととのえて完成。'],
-    baby:{
-      mid:['味つけ前に取り分け、野菜とささみを2〜3mmに刻む。','牛乳ごと温め、とろみをつけて完成。※牛乳が未経験なら育児用ミルクで。'],
-      late:['味つけ前に取り分け、5〜8mm角に刻んでとろみをつけて完成。'],
-      done:['味つけ前に取り分け、1cm角にして完成。パンに添えてもおいしい♪'],
-      toddler:['コンソメを入れる前に取り分けるか、大人用を牛乳でうすめて完成。'] }
-  },
-  {
-    id:'veggie-omelet', name:'お野菜たっぷりオムレツ', emoji:'🍳',
-    meals:['朝'], protein:'卵', stages:['late','done','toddler'],
-    ingredients:{
-      common:['卵 4個','玉ねぎ 1/4個','にんじん 1/4本','ほうれん草 2株'],
-      adult:['塩こしょう 少々','チーズ 適量','ケチャップ 適量'],
-      baby:[] },
-    common:[
-      '野菜はすべてみじん切りにして、レンジで2分加熱してやわらかくする。',
-      '卵をとき、野菜を混ぜる。',
-      'ここで赤ちゃんの分を取り分ける！(味つけ前)'],
-    adult:[
-      '残りに塩こしょうとチーズを加え、バターで半熟オムレツに焼く。',
-      'ケチャップをかけて完成。'],
-    baby:{
-      late:['取り分けた卵液を弱火で薄焼きにし、両面しっかり火を通す。','1cm幅のスティック状に切って手づかみオムレツの完成。'],
-      done:['取り分けた卵液をしっかり焼いて、食べやすい角切りに。','ケチャップをちょんとつけても◎'],
-      toddler:['取り分けた卵液に粉チーズを少しだけ混ぜて焼く。','半熟はNG、中までしっかり焼いて完成。'] }
-  },
-  {
-    id:'pork-pot', name:'ごろごろ野菜と豚肉のポトフ', emoji:'🍲',
-    meals:['昼','晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
-    ingredients:{
-      common:['豚もも薄切り肉 150g','じゃがいも 2個','にんじん 1/2本','キャベツ 2枚','水 500ml','昆布だし 少々'],
-      adult:['コンソメ 1個','塩こしょう 少々','粒マスタード お好みで'],
-      baby:[] },
-    common:[
-      '野菜は大きめに切り、昆布だしの水からコトコト煮る。',
-      '豚肉を加えて火を通し、アクを取る。',
-      '野菜が串でスッと刺せるまでやわらかく煮る。'],
-    adult:[
-      'コンソメ・塩こしょうで味をととのえて完成。粒マスタードを添えて♪'],
-    baby:{
-      early:['味つけ前にじゃがいも・にんじん・キャベツ(やわらかい葉)を取り分ける。','なめらかにすりつぶし、スープでのばして完成。※お肉はまだ使いません。'],
-      mid:['味つけ前に取り分け、野菜はみじん切り、豚肉は脂を除いて細かく刻む。','スープと一緒に完成。'],
-      late:['味つけ前に取り分け、5〜8mm角に。やわらか野菜は手づかみスティックにしても◎'],
-      done:['味つけ前に取り分け、1cm角に。塩をほんのひとつまみのうす味スープで完成。'],
-      toddler:['コンソメ半量の時点で取り分けて完成。大人はあとから味を足してね。'] }
-  },
-  {
-    id:'chicken-tomato', name:'チキンと野菜のトマト煮', emoji:'🍅',
-    meals:['晩'], protein:'肉', stages:['mid','late','done','toddler'],
-    ingredients:{
-      common:['鶏もも肉(皮なし) 250g','玉ねぎ 1/2個','なす 1本','トマト缶(食塩無添加) 1/2缶','水 100ml'],
-      adult:['にんにく 1片','コンソメ 1個','塩こしょう 少々','オリーブオイル 適量'],
-      baby:[] },
-    common:[
-      '鶏肉は一口大、野菜は小さめに切る。',
-      '鍋で鶏肉と野菜を軽く炒め(赤ちゃん分は油少なめの端で)、トマト缶と水を加える。',
-      'ふたをして15分、やわらかくなるまで煮込む。'],
-    adult:[
-      'にんにく・コンソメ・塩こしょうで味をととのえて完成。パスタにも◎'],
-    baby:{
-      mid:['味つけ前に取り分け、鶏肉と野菜を細かく刻む。','トマトの酸味が強ければ少しだし汁でうすめて完成。'],
-      late:['味つけ前に取り分け、5〜8mm角に刻んで完成。うどんにかけても♪'],
-      done:['味つけ前に取り分け、1cm角に。粉チーズをほんの少しふっても◎'],
-      toddler:['コンソメを入れる前に取り分けて完成。軟飯にかけてミニトマトリゾットにも♪'] }
-  },
-  {
-    id:'natto-oyaki', name:'納豆と野菜のおやき', emoji:'🥞',
-    meals:['朝','昼'], protein:'豆腐', stages:['late','done','toddler'],
-    ingredients:{
-      common:['ひきわり納豆 2パック','にんじん 1/4本','ほうれん草 2株','ご飯(または軟飯) 茶碗2杯','片栗粉 大さじ3'],
-      adult:['納豆のタレ','しょうゆ 少々','ごま油 適量'],
-      baby:[] },
-    common:[
-      'にんじんはすりおろし、ほうれん草はゆでて細かく刻む。',
-      'ボウルにご飯・納豆・野菜・片栗粉を入れてよく混ぜる。',
-      'ここで赤ちゃんの分を取り分ける！(タレ・しょうゆなし)'],
-    adult:[
-      '残りにタレとしょうゆを混ぜ、ごま油で両面カリッと焼いて完成。'],
-    baby:{
-      late:['取り分けたたねを小さな平たい丸にして、油をごく薄くひいて弱火で両面焼く。','手づかみで食べやすいミニおやきの完成♪'],
-      done:['たねを平たい丸にして両面焼く。','納豆のタレを1/4量だけ混ぜてもOK。'],
-      toddler:['子ども用サイズに焼いて、しょうゆをほんの少し塗って完成。'] }
-  },
+  { name:'豆腐と野菜のとろとろ煮', emoji:'🥄', meals:['朝','昼'], protein:'豆腐', stages:['early','mid','late','done','toddler'],
+    ingredients:['絹ごし豆腐 150g','にんじん 1/3本','ほうれん草(葉先) 2株','だし汁 200ml','しょうゆ 小さじ2（大人用）','かつお節・ごま油（大人用）'],
+    common:['にんじんは皮をむいてやわらかくゆで、ほうれん草はゆでて水にさらす。','豆腐はさっとゆでて水きりする。','だし汁を鍋にわかす。'],
+    adult:['だし汁に豆腐と野菜を入れ、しょうゆで味をととのえて2分煮る。','かつお節とごま油をかけて完成。'],
+    baby:{ early:['具材をなめらかにすりつぶし、味つけ前のだし汁でポタージュ状にのばして完成。'],
+      mid:['具材を2〜3mmに刻み、味つけ前のだし汁で煮てとろみをつけて完成。'],
+      late:['具材を5〜8mm角に切り、味つけ前のだし汁で煮て完成。'],
+      done:['具材を1cm角に切り、しょうゆ1〜2滴のうす味で煮て完成。'],
+      toddler:['大人用をだし汁でうすめ、食べやすく切って完成。'] } },
+  { name:'かぼちゃの鶏そぼろ煮', emoji:'🎃', meals:['昼','晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
+    ingredients:['かぼちゃ 1/4個','鶏ひき肉 150g','だし汁 300ml','しょうゆ・みりん 各大さじ1（大人用）'],
+    common:['かぼちゃは一口大に切り、だし汁でやわらかく煮る。','鶏ひき肉を加えてほぐしながら火を通し、アクを取る。'],
+    adult:['しょうゆ・みりんを加えて5分煮含めて完成。'],
+    baby:{ early:['味つけ前のかぼちゃをすりつぶし、煮汁でのばして完成（ひき肉はまだ×）。'],
+      mid:['味つけ前に取り分け、かぼちゃをつぶしひき肉を細かくして、とろみをつけて完成。'],
+      late:['味つけ前に取り分け、かぼちゃを5〜8mm角にくずして完成。'],
+      done:['味つけ前に取り分け1cm角に。しょうゆ1〜2滴のうす味で完成。'],
+      toddler:['調味料を半分入れた時点で取り分けて完成。'] } },
+  { name:'白身魚と野菜のあんかけ', emoji:'🐠', meals:['晩'], protein:'魚', stages:['early','mid','late','done','toddler'],
+    ingredients:['たら 3切れ','にんじん 1/3本','小松菜 2株','だし汁 300ml','しょうゆ・みりん 各小さじ2（大人用）','水溶き片栗粉'],
+    common:['たらは骨と皮を取る。野菜は刻む。','だし汁で野菜を煮て、たらを加えて火を通しほぐす。'],
+    adult:['しょうゆ・みりんで味をととのえ、とろみをつけて完成。'],
+    baby:{ early:['味つけ前に取り分けすりつぶし、煮汁でのばして完成。'],
+      mid:['味つけ前に取り分け細かく刻み、とろみをつけて完成。'],
+      late:['味つけ前に取り分け5〜8mm角にして、とろみをつけて完成。'],
+      done:['味つけ前に取り分け1cm角に。ごくうす味のあんで完成。'],
+      toddler:['うす味のあんをかけて完成。大人の半分の味で。'] } },
+  { name:'やさしい肉じゃが', emoji:'🥔', meals:['晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
+    ingredients:['じゃがいも 3個','にんじん 1/2本','玉ねぎ 1/2個','豚こま 150g','だし汁 400ml','しょうゆ・みりん 各大さじ2（大人用）'],
+    common:['野菜を切り、だし汁でやわらかく煮る。','豚肉を加えて火を通し、アクを取る。'],
+    adult:['調味料を加えて10分煮含めて完成。'],
+    baby:{ early:['味つけ前のじゃがいも・にんじんをすりつぶし、煮汁でのばして完成（お肉はまだ×）。'],
+      mid:['味つけ前に取り分け、野菜をつぶし豚肉を細かく刻んで完成。'],
+      late:['味つけ前に取り分け、5〜8mm角に切って完成。'],
+      done:['味つけ前に取り分け1cm角、しょうゆ数滴で軽く煮て完成。'],
+      toddler:['調味料半分の時点で取り分けて完成。'] } },
+  { name:'ふんわり豆腐ハンバーグ', emoji:'🍔', meals:['昼','晩'], protein:'肉', stages:['mid','late','done','toddler'],
+    ingredients:['鶏ひき肉 200g','木綿豆腐 150g','玉ねぎ 1/2個','片栗粉 大さじ2','塩こしょう・ソース（大人用）'],
+    common:['豆腐は水きり、玉ねぎはみじん切りしてレンジ2分。','材料を混ぜ、ここで赤ちゃんの分を取り分ける！（味つけ前）'],
+    adult:['塩こしょうして小判形にし、両面をこんがり焼いてソースで完成。'],
+    baby:{ mid:['小さな平たい団子にして弱火で焼き、ほぐしてだし汁でしっとりさせて完成。'],
+      late:['3cmの小判形にして中まで焼き、手づかみサイズで完成。'],
+      done:['青のりを混ぜて焼き、ケチャップ少々を添えて完成。'],
+      toddler:['子どもサイズに焼き、大人用ソースを1/3量だけ塗って完成。'] } },
+  { name:'鮭と野菜のホイル蒸し', emoji:'🧡', meals:['晩'], protein:'魚', stages:['mid','late','done','toddler'],
+    ingredients:['生鮭(無塩) 3切れ','キャベツ 2枚','にんじん 1/4本','みそ・みりん・バター（大人用）'],
+    common:['野菜を切り、鮭の骨を取る。','ホイルを大人用と赤ちゃん用に分けて包み、10分蒸し焼きに。大人用だけみそ+バター。'],
+    adult:['ホイルを開けて完成。'],
+    baby:{ mid:['赤ちゃん用の鮭と野菜を細かくほぐし、蒸し汁でしっとりさせて完成。'],
+      late:['粗くほぐして5〜8mm角に刻んで完成。'],
+      done:['1cm角にして、しょうゆ1滴のうす味で完成。'],
+      toddler:['食べやすく切って完成。みそ味はまだ濃いので×。'] } },
+  { name:'とろとろ親子煮', emoji:'🥚', meals:['昼'], protein:'卵', stages:['late','done','toddler'],
+    ingredients:['鶏むね肉 200g','玉ねぎ 1/2個','卵 3個','だし汁 300ml','しょうゆ・みりん（大人用）'],
+    common:['鶏肉と玉ねぎをだし汁で煮てアクを取る。','ここで赤ちゃんの分の具と煮汁を取り分ける！（味つけ前）'],
+    adult:['調味料を加え、とき卵を回し入れて完成。'],
+    baby:{ late:['具を5mm角に刻み、とき卵を加えてしっかり完全に火を通して完成。※卵は試し済みの子向け。'],
+      done:['具を1cm角に、卵にしっかり火を通し、うす味で軟飯にのせて完成。'],
+      toddler:['大人用をだし汁で半分にうすめ、卵の火の通りを確認して完成。'] } },
+  { name:'ささみと野菜のクリーム煮', emoji:'🥛', meals:['昼','晩'], protein:'肉', stages:['mid','late','done','toddler'],
+    ingredients:['鶏ささみ 3本','じゃがいも 2個','にんじん 1/3本','ブロッコリー 1/4株','牛乳 200ml','コンソメ・塩こしょう・バター（大人用）'],
+    common:['野菜をゆで、ささみをゆでてさく。','鍋に具と牛乳を入れて温める（沸騰させない）。'],
+    adult:['コンソメ・塩こしょう・バターで味をととのえて完成。'],
+    baby:{ mid:['味つけ前に取り分け2〜3mmに刻み、とろみをつけて完成。※牛乳未経験なら育児用ミルクで。'],
+      late:['味つけ前に取り分け5〜8mm角にして完成。'],
+      done:['味つけ前に取り分け1cm角にして完成。'],
+      toddler:['コンソメを入れる前に取り分けて完成。'] } },
+  { name:'お野菜たっぷりオムレツ', emoji:'🍳', meals:['朝'], protein:'卵', stages:['late','done','toddler'],
+    ingredients:['卵 4個','玉ねぎ 1/4個','にんじん 1/4本','ほうれん草 2株','塩こしょう・チーズ・ケチャップ（大人用）'],
+    common:['野菜をみじん切りにしてレンジ2分。','卵をとき野菜を混ぜ、ここで赤ちゃんの分を取り分ける！'],
+    adult:['塩こしょうとチーズを加え、半熟オムレツに焼いてケチャップで完成。'],
+    baby:{ late:['薄焼きにして両面しっかり火を通し、スティック状に切って完成。'],
+      done:['しっかり焼いて角切りに。ケチャップをちょんとつけても◎'],
+      toddler:['粉チーズを少し混ぜて、中までしっかり焼いて完成。'] } },
+  { name:'ごろごろ野菜と豚肉のポトフ', emoji:'🍲', meals:['昼','晩'], protein:'肉', stages:['early','mid','late','done','toddler'],
+    ingredients:['豚もも薄切り 150g','じゃがいも 2個','にんじん 1/2本','キャベツ 2枚','水 500ml','コンソメ・塩こしょう（大人用）'],
+    common:['野菜を大きめに切り、水からコトコト煮る。','豚肉を加えて火を通し、アクを取る。'],
+    adult:['コンソメ・塩こしょうで味をととのえて完成。'],
+    baby:{ early:['味つけ前の野菜をすりつぶし、スープでのばして完成（お肉はまだ×）。'],
+      mid:['味つけ前に取り分け、みじん切りにして完成。'],
+      late:['味つけ前に取り分け5〜8mm角に。やわらか野菜スティックにも◎'],
+      done:['味つけ前に取り分け1cm角、塩ひとつまみのうす味で完成。'],
+      toddler:['コンソメ半量の時点で取り分けて完成。'] } },
+  { name:'チキンと野菜のトマト煮', emoji:'🍅', meals:['晩'], protein:'肉', stages:['mid','late','done','toddler'],
+    ingredients:['鶏もも肉(皮なし) 250g','玉ねぎ 1/2個','なす 1本','トマト缶(食塩無添加) 1/2缶','にんにく・コンソメ・塩こしょう（大人用）'],
+    common:['鶏肉と野菜を切って軽く炒め、トマト缶と水を加えて15分煮込む。'],
+    adult:['にんにく・コンソメ・塩こしょうで味をととのえて完成。'],
+    baby:{ mid:['味つけ前に取り分け細かく刻んで完成。酸味が強ければだし汁でうすめて。'],
+      late:['味つけ前に取り分け5〜8mm角に。うどんにかけても♪'],
+      done:['味つけ前に取り分け1cm角に。粉チーズ少々も◎'],
+      toddler:['コンソメを入れる前に取り分けて完成。'] } },
+  { name:'しらすと豆腐のふわふわ和え', emoji:'🐟', meals:['朝'], protein:'魚', stages:['early','mid','late','done','toddler'],
+    ingredients:['しらす干し 大さじ3','絹ごし豆腐 150g','小ねぎ・かつお節・しょうゆ（大人用）'],
+    common:['しらすは熱湯を回しかけて塩抜きする。','豆腐はさっとゆでて温める。'],
+    adult:['豆腐にしらす・小ねぎ・かつお節・しょうゆをかけて完成。'],
+    baby:{ early:['しらすと豆腐をすりつぶし、湯冷ましでのばして完成。'],
+      mid:['しらすを刻み、豆腐をくずして混ぜて完成。'],
+      late:['豆腐を5〜8mm角にしてしらすと和えて完成。'],
+      done:['豆腐を1cm角にしてしらすと和え、青のりを少々。'],
+      toddler:['大人用と同じ盛りつけで、しょうゆ無しか1滴だけ。'] } },
+  { name:'納豆と野菜のおやき', emoji:'🥞', meals:['朝','昼'], protein:'豆腐', stages:['late','done','toddler'],
+    ingredients:['ひきわり納豆 2パック','にんじん 1/4本','ほうれん草 2株','ご飯 茶碗2杯','片栗粉 大さじ3','タレ・しょうゆ・ごま油（大人用）'],
+    common:['にんじんをすりおろし、ほうれん草を刻む。','ご飯・納豆・野菜・片栗粉を混ぜ、赤ちゃんの分を取り分ける！（タレなし）'],
+    adult:['タレとしょうゆを混ぜ、ごま油でカリッと焼いて完成。'],
+    baby:{ late:['小さな平たい丸にして弱火で両面焼き、手づかみおやきの完成♪'],
+      done:['平たい丸に焼く。タレを1/4量だけ混ぜてもOK。'],
+      toddler:['子どもサイズに焼いて、しょうゆをほんの少し塗って完成。'] } },
 ];
 
-// ---------- UI ----------
-const ageSlider = document.getElementById('ageSlider');
-const ageValue = document.getElementById('ageValue');
-const stageBadge = document.getElementById('stageBadge');
-const genBtn = document.getElementById('genBtn');
-const thinking = document.getElementById('thinking');
-const thinkingText = document.getElementById('thinkingText');
-const mealSection = document.getElementById('mealSection');
-const milkOnly = document.getElementById('milkOnly');
+// ================= 状態・設定 =================
+const $ = id => document.getElementById(id);
+const store = {
+  get key(){ return localStorage.getItem('bmr_key') || ''; },
+  set key(v){ localStorage.setItem('bmr_key', v); },
+  get model(){ return localStorage.getItem('bmr_model') || 'claude-opus-4-8'; },
+  set model(v){ localStorage.setItem('bmr_model', v); },
+  get search(){ return localStorage.getItem('bmr_search') === '1'; },
+  set search(v){ localStorage.setItem('bmr_search', v ? '1' : '0'); },
+  get recent(){ try { return JSON.parse(localStorage.getItem('bmr_recent')||'[]'); } catch(e){ return []; } },
+  set recent(v){ localStorage.setItem('bmr_recent', JSON.stringify(v.slice(-12))); },
+};
 
+let weather = null; // {desc, temp}
+let aborter = null;
+
+// ================= 月齢UI =================
+function updateAge() {
+  const m = +$('ageSlider').value;
+  $('ageValue').textContent = m + 'ヶ月';
+  const st = monthToStage(m);
+  if (st) {
+    $('stageBadge').innerHTML = `🌱 ${st.label}｜${st.months}<div class="stage-note">${st.note}</div>`;
+    $('genBtn').style.display = 'block';
+    $('condBlock').style.display = 'block';
+  } else {
+    $('stageBadge').innerHTML = '🍼 ミルク・母乳の時期です';
+    $('genBtn').style.display = 'none';
+    $('condBlock').style.display = 'none';
+  }
+  hideResults();
+  $('milkOnly').style.display = st ? 'none' : 'block';
+}
+$('ageSlider').addEventListener('input', updateAge);
+
+function hideResults() {
+  $('mealSection').style.display = 'none';
+  $('aiReason').style.display = 'none';
+  $('errBox').style.display = 'none';
+}
+
+// ================= 体調チップUI =================
+CONDITIONS.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (c === condition ? ' on' : '');
+  b.textContent = c;
+  b.addEventListener('click', () => {
+    condition = c;
+    document.querySelectorAll('#condChips .chip').forEach(x => x.classList.toggle('on', x.textContent === c));
+  });
+  $('condChips').appendChild(b);
+});
+
+// ================= 天気 =================
+const WMO = [
+  [[0,1],'☀️ 晴れ'], [[2,2],'🌤 うす曇り'], [[3,3],'☁️ くもり'], [[45,48],'🌫 霧'],
+  [[51,67],'🌧 雨'], [[71,77],'❄️ 雪'], [[80,82],'🌦 にわか雨'], [[85,86],'❄️ 雪'], [[95,99],'⛈ 雷雨'],
+];
+function wmoDesc(code) {
+  for (const [[a,b],d] of WMO) if (code >= a && code <= b) return d;
+  return '🌏 ―';
+}
+function season(month) {
+  if (month >= 3 && month <= 5) return '春';
+  if (month >= 6 && month <= 8) return '夏';
+  if (month >= 9 && month <= 11) return '秋';
+  return '冬';
+}
+async function fetchWeather(lat, lon) {
+  const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
+  const j = await r.json();
+  weather = { desc: wmoDesc(j.current.weather_code), temp: Math.round(j.current.temperature_2m) };
+  $('weatherChip').textContent = `${weather.desc} ${weather.temp}℃ ・ 季節は${season(new Date().getMonth()+1)}です`;
+}
+function initWeather() {
+  const fallback = () => fetchWeather(35.68, 139.76).catch(() => { $('weatherChip').textContent = '🌏 天気を取得できませんでした（献立には季節だけ反映します）'; });
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      p => fetchWeather(p.coords.latitude, p.coords.longitude).catch(fallback),
+      fallback, { timeout: 5000 });
+  } else fallback();
+}
+initWeather();
+
+// ================= 設定モーダル =================
+function refreshModeHint() {
+  if (store.key) {
+    $('modeHint').innerHTML = `🤖 <b>AIモード</b>で動作中（${store.model}${store.search ? ' + Web検索' : ''}）`;
+  } else {
+    $('modeHint').innerHTML = '📚 いまは内蔵レシピモードです。右上の <b>⚙️</b> からAPIキーを設定すると、AIが毎回新しいレシピを考えます。';
+  }
+}
+$('gearBtn').addEventListener('click', () => {
+  $('keyInput').value = store.key;
+  $('modelSelect').value = store.model;
+  $('searchToggle').checked = store.search;
+  $('modalBg').classList.add('show');
+});
+$('modalClose').addEventListener('click', () => $('modalBg').classList.remove('show'));
+$('modalBg').addEventListener('click', e => { if (e.target === $('modalBg')) $('modalBg').classList.remove('show'); });
+$('keyToggle').addEventListener('click', () => {
+  $('keyInput').type = $('keyInput').type === 'password' ? 'text' : 'password';
+});
+$('modalSave').addEventListener('click', () => {
+  store.key = $('keyInput').value.trim();
+  store.model = $('modelSelect').value;
+  store.search = $('searchToggle').checked;
+  $('modalBg').classList.remove('show');
+  refreshModeHint();
+});
+refreshModeHint();
+
+// ================= 生成 =================
 const MEALS = [
   { time:'朝ごはん', cls:'morning', tag:'朝', icon:'🌅' },
   { time:'昼ごはん', cls:'noon',    tag:'昼', icon:'☀️' },
   { time:'晩ごはん', cls:'night',   tag:'晩', icon:'🌙' },
 ];
-let currentPlan = [null, null, null];
 
-function updateAge() {
-  const m = +ageSlider.value;
-  ageValue.textContent = m + 'ヶ月';
-  const st = monthToStage(m);
-  if (st) {
-    stageBadge.innerHTML = `🌱 ${st.label}｜${st.months}<div class="stage-note">${st.note}</div>`;
-    genBtn.style.display = 'block';
-  } else {
-    stageBadge.innerHTML = '🍼 ミルク・母乳の時期です';
-    genBtn.style.display = 'none';
+$('genBtn').addEventListener('click', async () => {
+  const st = monthToStage(+$('ageSlider').value);
+  if (!st) return;
+  hideResults();
+  $('genBtn').disabled = true;
+  $('thinking').style.display = 'block';
+  $('thinkingSub').textContent = '';
+  try {
+    if (store.key) {
+      await generateWithAI(st);
+    } else {
+      $('thinkingText').textContent = '内蔵レシピから選んでいます…';
+      await new Promise(r => setTimeout(r, 900));
+      generateFromPresets(st);
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') showError(e.message || String(e));
+  } finally {
+    $('thinking').style.display = 'none';
+    $('genBtn').disabled = false;
+    aborter = null;
   }
-  mealSection.style.display = 'none';
-  milkOnly.style.display = st ? 'none' : 'block';
-}
-ageSlider.addEventListener('input', updateAge);
+});
+$('cancelBtn').addEventListener('click', () => { if (aborter) aborter.abort(); });
 
-function pickRecipe(mealTag, stageKey, excludeIds, avoidProteins) {
-  let pool = RECIPES.filter(r =>
-    r.meals.includes(mealTag) && r.stages.includes(stageKey) && !excludeIds.includes(r.id));
+function showError(msg) {
+  $('errBox').innerHTML = '😢 ごめんなさい、うまくいきませんでした。<br><small>' + escapeHtml(msg).slice(0, 300) + '</small>';
+  $('errBox').style.display = 'block';
+}
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ---------- 内蔵レシピモード ----------
+function pickRecipe(mealTag, stageKey, excludeNames, avoidProteins) {
+  let pool = RECIPES.filter(r => r.meals.includes(mealTag) && r.stages.includes(stageKey) && !excludeNames.includes(r.name));
   const balanced = pool.filter(r => !avoidProteins.includes(r.protein));
   if (balanced.length) pool = balanced;
-  if (!pool.length) {
-    pool = RECIPES.filter(r => r.meals.includes(mealTag) && r.stages.includes(stageKey));
-  }
+  if (!pool.length) pool = RECIPES.filter(r => r.meals.includes(mealTag) && r.stages.includes(stageKey));
   return pool[Math.floor(Math.random() * pool.length)];
 }
-
-function generatePlan() {
-  const st = monthToStage(+ageSlider.value);
-  if (!st) return;
+function generateFromPresets(st) {
   const used = [], proteins = [];
-  currentPlan = MEALS.map(m => {
+  const plan = MEALS.map(m => {
     const r = pickRecipe(m.tag, st.key, used, proteins);
-    if (r) { used.push(r.id); proteins.push(r.protein); }
-    return r;
+    if (r) { used.push(r.name); proteins.push(r.protein); }
+    return r && { name:r.name, emoji:r.emoji, ingredients:r.ingredients, common:r.common, adult:r.adult, baby:r.baby[st.key], point:'' };
   });
-  renderPlan(st);
+  renderPlan(plan, st, null);
 }
 
-const THINK_LINES = [
-  'AIシェフが献立を考え中…',
-  '栄養バランスをチェック中…',
-  '月齢に合わせて作り分けを計算中…',
-  'できあがり♪',
-];
-genBtn.addEventListener('click', () => {
-  genBtn.disabled = true;
-  mealSection.style.display = 'none';
-  thinking.style.display = 'block';
-  let i = 0;
-  thinkingText.textContent = THINK_LINES[0];
-  const iv = setInterval(() => {
-    i++;
-    if (i < THINK_LINES.length) thinkingText.textContent = THINK_LINES[i];
-    else {
-      clearInterval(iv);
-      thinking.style.display = 'none';
-      genBtn.disabled = false;
-      generatePlan();
-    }
-  }, 550);
-});
+// ---------- AIモード ----------
+const THINK_LINES = ['AIシェフが献立を考え中…','旬の食材とにらめっこ中…','作り分けの段取りを計算中…','味つけをこっそり調整中…'];
 
-function renderPlan(st) {
-  mealSection.innerHTML = '';
+const PLAN_SCHEMA = {
+  type:'object', additionalProperties:false, required:['reason','meals'],
+  properties:{
+    reason:{ type:'string', description:'今日の天気・季節・体調を踏まえてこの献立にした理由。ママパパへの一言(120字以内)。' },
+    meals:{ type:'array', items:{
+      type:'object', additionalProperties:false,
+      required:['time','name','emoji','ingredients','common_steps','adult_steps','baby_steps','point'],
+      properties:{
+        time:{ type:'string', enum:['朝','昼','晩'] },
+        name:{ type:'string' },
+        emoji:{ type:'string', description:'料理を表す絵文字1文字' },
+        ingredients:{ type:'array', items:{type:'string'}, description:'大人2人+赤ちゃん1人分。大人用のみの調味料には（大人用）と付記' },
+        common_steps:{ type:'array', items:{type:'string'}, description:'大人と赤ちゃんで共通の工程。最後は必ず味つけ前に赤ちゃん分を取り分ける流れにする' },
+        adult_steps:{ type:'array', items:{type:'string'} },
+        baby_steps:{ type:'array', items:{type:'string'}, description:'指定の離乳食ステージに合わせた作り分け工程' },
+        point:{ type:'string', description:'栄養や時短のワンポイント(60字以内)。不要なら空文字' }
+      }
+    }}
+  }
+};
+
+function buildPrompts(st) {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  const wStr = weather ? `${weather.desc.replace(/^[^ ]+ /,'')}、気温${weather.temp}℃` : '不明';
+  const recent = store.recent;
+  const req = $('reqInput').value.trim();
+
+  const system = `あなたは「ベビママなかよしレシピ」の献立AIです。管理栄養士として、大人と赤ちゃんの取り分けレシピ（主菜のみ）を提案します。
+
+ルール:
+- 朝・昼・晩の主菜を1品ずつ、必ずこの順で3品提案する
+- 各レシピは「共通の工程」で途中まで一緒に作り、味つけ前に赤ちゃん分を取り分けて「大人用」「赤ちゃん用」に作り分ける構成にする
+- 赤ちゃん用は指定の離乳食ステージに厳密に合わせる（かたさ・大きさ・味つけ・使える食材）
+- 安全最優先: 1歳未満にはちみつ・黒糖は絶対に使わない。赤ちゃん用は中まで完全に加熱。塩分・糖分・脂は最小限。誤嚥しやすい食材（ナッツ、餅、こんにゃくゼリー、ミニトマト丸ごと等）は赤ちゃん用に使わない。生もの・刺身は大人用のみ。
+- アレルギー特定原材料（卵・乳・小麦・そば・落花生・えび・かに・くるみ）を赤ちゃん用に使う場合は、pointに「○○が未経験なら少量から」と注意を書く
+- タンパク源（肉・魚・卵・大豆製品）が3食で偏らないようにする
+- 季節・天気・気温・体調に合わせる（暑い日はさっぱり、寒い日は温かく、風邪気味なら消化に良く水分多めに、食欲がない日は好まれやすい味に等）
+- 朝は手早く作れるもの、晩は少し丁寧なものにする
+- 手順は各セクション2〜4項目で簡潔に`;
+
+  let user = `今日の献立を考えてください。
+
+【日付】${dateStr}（季節: ${season(now.getMonth()+1)}）
+【天気・気温】${wStr}
+【赤ちゃん】${$('ageSlider').value}ヶ月 / ${st.label}（${st.months}）: ${st.note}
+【今日の体調】${condition}
+【リクエスト】${req || 'とくになし'}
+【最近作ったもの（かぶらないように）】${recent.length ? recent.join('、') : 'なし'}`;
+
+  if (store.search) {
+    user += `
+
+まずWeb検索で「今の旬の食材」や「人気の離乳食取り分けレシピ」を1〜3回調べて参考にしてから、献立を合成してください。
+最終回答は、次のJSONスキーマに従ったJSONオブジェクト1個だけを出力してください（前後に文章を書かない）:
+${JSON.stringify(PLAN_SCHEMA)}`;
+  }
+  return { system, user };
+}
+
+async function generateWithAI(st) {
+  const { system, user } = buildPrompts(st);
+  aborter = new AbortController();
+
+  let i = 0;
+  $('thinkingText').textContent = THINK_LINES[0];
+  const iv = setInterval(() => { i = (i+1) % THINK_LINES.length; $('thinkingText').textContent = THINK_LINES[i]; }, 2600);
+
+  const body = {
+    model: store.model,
+    max_tokens: 8000,
+    stream: true,
+    system,
+    messages: [{ role:'user', content: user }],
+  };
+  if (store.search) {
+    // Haiku 4.5 は新しい検索ツール未対応のため基本版を使う
+    const searchType = store.model === 'claude-haiku-4-5' ? 'web_search_20250305' : 'web_search_20260209';
+    body.tools = [{ type: searchType, name: 'web_search', max_uses: 3 }];
+  } else {
+    body.output_config = { format: { type:'json_schema', schema: PLAN_SCHEMA } };
+  }
+
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: aborter.signal,
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': store.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify(body),
+    });
+  } finally { if (!res || !res.ok) clearInterval(iv); }
+
+  if (!res.ok) {
+    let msg = 'HTTP ' + res.status;
+    try { const j = await res.json(); msg = (j.error && j.error.message) || msg; } catch(e) {}
+    if (res.status === 401) msg = 'APIキーが正しくないようです。⚙️設定を確認してね。（' + msg + '）';
+    throw new Error(msg);
+  }
+
+  // SSEを読みながらテキストを集める
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '', text = '', stopReason = null, searching = false;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line.startsWith('data:')) continue;
+        let ev;
+        try { ev = JSON.parse(line.slice(5).trim()); } catch(e) { continue; }
+        if (ev.type === 'content_block_start' && ev.content_block && ev.content_block.type === 'server_tool_use') {
+          searching = true;
+          $('thinkingSub').textContent = '🔎 ネットでレシピを調べています…';
+        }
+        if (ev.type === 'content_block_delta' && ev.delta) {
+          if (ev.delta.type === 'text_delta') {
+            text += ev.delta.text;
+            if (!searching || text.length > 0) $('thinkingSub').textContent = `✍️ 書いています… ${text.length}文字`;
+          }
+        }
+        if (ev.type === 'message_delta' && ev.delta && ev.delta.stop_reason) stopReason = ev.delta.stop_reason;
+      }
+    }
+  } finally { clearInterval(iv); }
+
+  if (stopReason === 'refusal') throw new Error('AIがこのリクエストにはお答えできませんでした。条件を変えてもう一度試してね。');
+  if (stopReason === 'max_tokens') throw new Error('回答が長すぎて途中で切れてしまいました。もう一度試してね。');
+
+  const plan = parsePlan(text);
+  const meals = plan.meals.map(m => ({
+    name: m.name, emoji: m.emoji || '🍽',
+    ingredients: m.ingredients, common: m.common_steps, adult: m.adult_steps, baby: m.baby_steps,
+    point: m.point || '',
+  }));
+  store.recent = store.recent.concat(plan.meals.map(m => m.name));
+  renderPlan(meals, st, plan.reason);
+}
+
+function parsePlan(text) {
+  // 構造化出力なら全体がJSON。検索モードは文章が混ざることがあるので抽出する。
+  try { return validatePlan(JSON.parse(text)); } catch(e) {}
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a >= 0 && b > a) {
+    try { return validatePlan(JSON.parse(text.slice(a, b + 1))); } catch(e) {}
+  }
+  throw new Error('AIの回答をうまく読み取れませんでした。もう一度試してね。');
+}
+function validatePlan(p) {
+  if (!p || !Array.isArray(p.meals) || p.meals.length < 3) throw new Error('bad plan');
+  return p;
+}
+
+// ================= 描画 =================
+function renderPlan(meals, st, reason) {
+  if (reason) {
+    $('aiReason').innerHTML = `<div class="who">🤖 AIシェフより</div>${escapeHtml(reason)}`;
+    $('aiReason').style.display = 'block';
+  }
+  const sec = $('mealSection');
+  sec.innerHTML = '';
   MEALS.forEach((m, idx) => {
-    const r = currentPlan[idx];
+    const r = meals[idx];
     if (!r) return;
     const card = document.createElement('div');
     card.className = 'meal-card' + (idx === 0 ? ' open' : '');
     card.innerHTML = `
       <div class="meal-head">
         <span class="meal-time ${m.cls}">${m.icon} ${m.time}</span>
-        <div class="meal-title">${r.emoji} ${r.name}<small>タップで作り方をひらく</small></div>
-        <button class="reroll" title="べつのレシピにする">🔄</button>
+        <div class="meal-title">${escapeHtml(r.emoji)} ${escapeHtml(r.name)}<small>タップで作り方をひらく</small></div>
         <span class="chev">▶</span>
       </div>
-      <div class="meal-body">${recipeBody(r, st)}</div>`;
-    card.querySelector('.meal-head').addEventListener('click', e => {
-      if (e.target.closest('.reroll')) return;
-      card.classList.toggle('open');
-    });
-    card.querySelector('.reroll').addEventListener('click', () => {
-      const others = currentPlan.filter((x, i2) => x && i2 !== idx).map(x => x.id).concat(r.id);
-      const nr = pickRecipe(m.tag, st.key, others, []);
-      if (nr) { currentPlan[idx] = nr; renderPlan(st); }
-    });
-    mealSection.appendChild(card);
+      <div class="meal-body">
+        <div class="sec sec-ing">
+          <h3>🧺 材料（大人2人＋赤ちゃん1人分）</h3>
+          <ul>${r.ingredients.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>
+        </div>
+        <div class="sec sec-common">
+          <h3>👨‍👩‍👧 ここまでいっしょ！</h3>
+          <ol>${r.common.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>
+        </div>
+        <div class="split-banner">✂️ ここから作り分け ✂️</div>
+        <div class="sec sec-adult">
+          <h3>🍺 大人用</h3>
+          <ol>${r.adult.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>
+        </div>
+        <div class="sec sec-baby">
+          <h3>👶 赤ちゃん用 <span class="stage-tag">${st.label}・${st.months}</span></h3>
+          <ol>${r.baby.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ol>
+        </div>
+        ${r.point ? `<div class="point-line">💡 ${escapeHtml(r.point)}</div>` : ''}
+      </div>`;
+    card.querySelector('.meal-head').addEventListener('click', () => card.classList.toggle('open'));
+    sec.appendChild(card);
   });
-  mealSection.style.display = 'block';
-}
-
-function recipeBody(r, st) {
-  const ing = [...r.ingredients.common,
-    ...r.ingredients.adult.map(x => x + '（大人用）'),
-    ...r.ingredients.baby.map(x => x + '（赤ちゃん用）')];
-  return `
-    <div class="sec sec-ing">
-      <h3>🧺 材料（大人2人＋赤ちゃん1人分）</h3>
-      <ul>${ing.map(x => `<li>${x}</li>`).join('')}</ul>
-    </div>
-    <div class="sec sec-common">
-      <h3>👨‍👩‍👧 ここまでいっしょ！</h3>
-      <ol>${r.common.map(x => `<li>${x}</li>`).join('')}</ol>
-    </div>
-    <div class="split-banner">✂️ ここから作り分け ✂️</div>
-    <div class="sec sec-adult">
-      <h3>🍺 大人用</h3>
-      <ol>${r.adult.map(x => `<li>${x}</li>`).join('')}</ol>
-    </div>
-    <div class="sec sec-baby">
-      <h3>👶 赤ちゃん用 <span class="stage-tag">${st.label}・${st.months}</span></h3>
-      <ol>${r.baby[st.key].map(x => `<li>${x}</li>`).join('')}</ol>
-    </div>`;
+  sec.style.display = 'block';
 }
 
 updateAge();
